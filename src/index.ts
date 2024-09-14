@@ -2,9 +2,7 @@ import { readFileSync } from "fs";
 import { simpleGit } from "simple-git";
 import ts from "typescript";
 import path, { dirname, normalize } from "path";
-import { spawn } from "child_process";
-import { bar } from "./foo/bar/bar";
-import { foo } from "./foo/foo";
+import cp from "child_process";
 
 function getFileNames() {
     if (process.argv.length <= 2) {
@@ -12,6 +10,8 @@ function getFileNames() {
     }
     return process.argv.slice(2);
 }
+
+const isVisited: Record<string, boolean> = {};
 
 const filesToStage: string[] = [];
 
@@ -21,50 +21,49 @@ function pushImports(
     sourceDir: string,
     notStagedFiles: string[],
 ) {
-    if (ts.isImportDeclaration(node)) {
-        const { pos, end } = node.moduleSpecifier;
-        const moduleName = JSON.parse(source.slice(pos, end));
-        if (moduleName.startsWith(".")) {
-            console.log(`moduleName: ${moduleName}`);
-            const filePath = path.join(sourceDir, moduleName + ".ts");
-            if (notStagedFiles.includes(filePath)) {
-                const normalizedPath = normalize(filePath);
-                // console.log(normalizedPath);
-                filesToStage.push(normalizedPath);
-                getImports([normalizedPath], notStagedFiles);
-            }
+    if (!ts.isImportDeclaration(node)) {
+        return void ts.forEachChild(node, (node: ts.Node) =>
+            pushImports(node, source, sourceDir, notStagedFiles),
+        );
+    }
+    const { pos, end } = node.moduleSpecifier;
+    const moduleName = JSON.parse(source.slice(pos, end));
+    if (moduleName.startsWith(".")) {
+        const filePath = path.join(sourceDir, moduleName + ".ts");
+        const normalizedPath = normalize(filePath);
+        if (notStagedFiles.includes(normalizedPath)) {
+            filesToStage.push(normalizedPath);
+            getImports(normalizedPath, notStagedFiles);
         }
     }
-    ts.forEachChild(node, (node: ts.Node) =>
-        pushImports(node, source, sourceDir, notStagedFiles),
-    );
 }
 
-function getImports(fileNames: string[], notStagedFiles: string[]): void {
-    for (const fileName of fileNames) {
-        const sourceText = readFileSync(fileName).toString();
-        const source = ts.createSourceFile(
-            fileName,
-            sourceText,
-            ts.ScriptTarget.ES2015,
-        );
-        filesToStage.push(fileName);
-        pushImports(source, sourceText, dirname(fileName), notStagedFiles);
-    }
+function getImports(fileName: string, notStagedFiles: string[]): void {
+    if (isVisited[fileName] !== true) return;
+
+    const sourceText = readFileSync(fileName).toString();
+    const source = ts.createSourceFile(
+        fileName,
+        sourceText,
+        ts.ScriptTarget.ES2015,
+    );
+    filesToStage.push(fileName);
+    isVisited[fileName] = true;
+    pushImports(source, sourceText, dirname(fileName), notStagedFiles);
 }
 
 async function main() {
-    foo();
-    bar();
-    const files = getFileNames();
+    const fileNames = getFileNames();
     const git = simpleGit();
     const status = await git.status();
-    getImports(files, [...status.not_added, ...status.staged]);
-
     console.log(filesToStage);
-    const r = spawn("git", ["add", "-p", ...filesToStage], {
+    for (const fileName of fileNames) {
+        getImports(fileName, [...status.not_added, ...status.staged]);
+    }
+
+    const _ = cp.spawn("git", ["add", "-p", ...filesToStage], {
         stdio: "inherit",
     });
 }
 
-main();
+main().catch((err) => console.log(err));

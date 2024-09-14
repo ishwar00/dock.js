@@ -1,0 +1,32 @@
+{
+  "name": "lspstage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "npm run build && webpack",
+    "bundle:clean": "npm run build && webpack && npm run clean",
+    "clean": "npx rimraf dist",
+    "build": "npm run clean && npx tsc"
+  },
+  "bin": {
+    "lspstage": "./bin/lspstage"
+  },
+  "engines": {
+    "node": ">=14.17"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "simple-git": "^3.26.0",
+    "typescript": "^5.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "rimraff": "^0.0.1-security",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
