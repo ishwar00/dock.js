@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "npm run build && webpack",
     "bundle:clean": "npm run build && webpack && npm run clean",
     "clean": "npx rimraf dist",
