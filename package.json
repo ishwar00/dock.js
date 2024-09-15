@@ -1,5 +1,5 @@
 {
-  "name": "lspstage",
+  "name": "dock",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,7 +11,7 @@
     "build": "npm run clean && npx tsc"
   },
   "bin": {
-    "lspstage": "./bin/lspstage"
+    "git-dock": "./bin/git-dock"
   },
   "engines": {
     "node": ">=14.17"

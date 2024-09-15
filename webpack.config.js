@@ -6,7 +6,7 @@ module.exports = {
     entry: "./dist/index.js",
     output: {
         path: path.resolve(__dirname, "build"),
-        filename: "lspstage.js",
+        filename: "dock.js",
     },
     stats: { errorDetails: true },
 };
