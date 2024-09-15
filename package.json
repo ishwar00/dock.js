@@ -1,6 +1,6 @@
 {
-  "name": "dock",
-  "version": "1.0.0",
+  "name": "@waffles-lab/dock",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,8 +9,12 @@
     "clean": "npx rimraf dist",
     "build": "npm run clean && npx tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ishwar00/dock.js.git"
+  },
   "bin": {
-    "git-dock": "./bin/git-dock"
+    "git-dock": "bin/git-dock"
   },
   "engines": {
     "node": ">=14.17"
