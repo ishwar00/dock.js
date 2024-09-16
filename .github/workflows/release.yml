@@ -1,10 +1,13 @@
-on: push
+on:
+    push:
+        branches:
+            - release
 
 # ref: https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
 jobs:
     build:
         runs-on: ubuntu-latest
-        environment: release 
+        environment: release
         permissions:
             contents: read
             id-token: write
